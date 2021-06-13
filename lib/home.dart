@@ -135,7 +135,7 @@ class _HomeState extends State<Home> {
                               separatorBuilder: (ctx, i) {
                                 return SizedBox(height: 20);
                               },
-                              itemCount: recordings.length,
+                              itemCount: 2,
                               physics: NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               itemBuilder: (BuildContext context, int index) {
@@ -314,7 +314,7 @@ class _HomeState extends State<Home> {
                                                                                               children: [
                                                                                                 SizedBox(height: 16),
                                                                                                 Text(
-                                                                                                  "Dr. Ann Marie",
+                                                                                                  "Dr. Dhanush Vardhan",
                                                                                                   style: GoogleFonts.poppins(fontSize: 21, color: Colors.white),
                                                                                                 ),
                                                                                                 SizedBox(height: 5),

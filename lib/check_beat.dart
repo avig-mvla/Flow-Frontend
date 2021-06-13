@@ -34,7 +34,7 @@ class CheckBeat extends StatefulWidget {
 }
 
 class _CheckBeatState extends State<CheckBeat> {
-  int timeLeft = 10;
+  int timeLeft = 30;
 //60
 
   Timer _timer;
