@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jitsi_meet/jitsi_meet.dart';
 import 'package:lottie/lottie.dart';
 import 'package:masseyhacks/check_beat.dart';
 import 'dart:ui';
@@ -14,6 +18,129 @@ class DoctorHome extends StatefulWidget {
 }
 
 class _DoctorHomeState extends State<DoctorHome> {
+  final serverText = TextEditingController();
+  final roomText = TextEditingController(text: "plugintestroom");
+  final subjectText = TextEditingController(text: "My Plugin Test Meeting");
+  final nameText = TextEditingController(text: "Plugin Test User");
+  final emailText = TextEditingController(text: "fake@email.com");
+  final iosAppBarRGBAColor =
+      TextEditingController(text: "#0080FF80"); //transparent blue
+  bool? isAudioOnly = true;
+  bool? isAudioMuted = true;
+  bool? isVideoMuted = true;
+
+  @override
+  void initState() {
+    super.initState();
+    JitsiMeet.addListener(JitsiMeetingListener(
+        onConferenceWillJoin: _onConferenceWillJoin,
+        onConferenceJoined: _onConferenceJoined,
+        onConferenceTerminated: _onConferenceTerminated,
+        onError: _onError));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    JitsiMeet.removeAllListeners();
+  }
+
+  _onAudioOnlyChanged(bool? value) {
+    setState(() {
+      isAudioOnly = value;
+    });
+  }
+
+  _onAudioMutedChanged(bool? value) {
+    setState(() {
+      isAudioMuted = value;
+    });
+  }
+
+  _onVideoMutedChanged(bool? value) {
+    setState(() {
+      isVideoMuted = value;
+    });
+  }
+
+  _joinMeeting() async {
+    String? serverUrl = serverText.text.trim().isEmpty ? null : serverText.text;
+
+    // Enable or disable any feature flag here
+    // If feature flag are not provided, default values will be used
+    // Full list of feature flags (and defaults) available in the README
+    Map<FeatureFlagEnum, bool> featureFlags = {
+      FeatureFlagEnum.WELCOME_PAGE_ENABLED: false,
+    };
+    if (!kIsWeb) {
+      // Here is an example, disabling features for each platform
+      if (Platform.isAndroid) {
+        // Disable ConnectionService usage on Android to avoid issues (see README)
+        featureFlags[FeatureFlagEnum.CALL_INTEGRATION_ENABLED] = false;
+      } else if (Platform.isIOS) {
+        // Disable PIP on iOS as it looks weird
+        featureFlags[FeatureFlagEnum.PIP_ENABLED] = false;
+      }
+    }
+    // Define meetings options here
+    var options = JitsiMeetingOptions(room: roomText.text)
+      ..serverURL = serverUrl
+      ..subject = "Cardio Consultation"
+      ..userDisplayName = "Dhanush"
+      ..userEmail = "De"
+      ..iosAppBarRGBAColor = iosAppBarRGBAColor.text
+      ..audioOnly = isAudioOnly
+      ..audioMuted = isAudioMuted
+      ..videoMuted = isVideoMuted
+      ..featureFlags.addAll(featureFlags)
+      ..webOptions = {
+        "roomName": "1234",
+        "width": "100%",
+        "height": "100%",
+        "enableWelcomePage": false,
+        "chromeExtensionBanner": null,
+        "userInfo": {"displayName": "Dhanush"}
+      };
+
+    debugPrint("JitsiMeetingOptions: $options");
+    await JitsiMeet.joinMeeting(
+      options,
+      listener: JitsiMeetingListener(
+          onConferenceWillJoin: (message) {
+            debugPrint("${options.room} will join with message: $message");
+          },
+          onConferenceJoined: (message) {
+            debugPrint("${options.room} joined with message: $message");
+          },
+          onConferenceTerminated: (message) {
+            debugPrint("${options.room} terminated with message: $message");
+          },
+          genericListeners: [
+            JitsiGenericListener(
+                eventName: 'readyToClose',
+                callback: (dynamic message) {
+                  debugPrint("readyToClose callback");
+                }),
+          ]),
+    );
+  }
+
+  void _onConferenceWillJoin(message) {
+    debugPrint("_onConferenceWillJoin broadcasted with message: $message");
+  }
+
+  void _onConferenceJoined(message) {
+    debugPrint("_onConferenceJoined broadcasted with message: $message");
+  }
+
+  void _onConferenceTerminated(message) {
+    debugPrint("_onConferenceTerminated broadcasted with message: $message");
+  }
+
+  _onError(error) {
+    debugPrint("_onError broadcasted: $error");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +199,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                                         image: DecorationImage(
                                             fit: BoxFit.cover,
                                             image: NetworkImage(
-                                                "https://image.shutterstock.com/mosaic_250/2780032/1548802709/stock-photo-headshot-portrait-of-happy-millennial-man-in-casual-clothes-isolated-on-grey-studio-background-1548802709.jpg"))))),
+                                                "https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg"))))),
                           )
                         ],
                       ),
@@ -81,7 +208,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                         separatorBuilder: (ctx, i) {
                           return SizedBox(height: 20);
                         },
-                        itemCount: 10,
+                        itemCount: 1,
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemBuilder: (BuildContext context, int index) {
@@ -118,7 +245,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                                           image: DecorationImage(
                                               fit: BoxFit.cover,
                                               image: NetworkImage(
-                                                  "https://t4.ftcdn.net/jpg/02/14/74/61/360_F_214746128_31JkeaP6rU0NzzzdFC4khGkmqc8noe6h.jpg")),
+                                                  "https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg")),
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
@@ -278,27 +405,32 @@ class _DoctorHomeState extends State<DoctorHome> {
                                             ),
                                           ),
                                           SizedBox(height: 8),
-                                          Container(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width -
-                                                  116,
-                                              height: 30,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
-                                                color: Colors.blue,
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  "Call Patient",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Colors.white,
-                                                      fontSize: 17),
+                                          GestureDetector(
+                                            onTap: () {
+                                              _joinMeeting();
+                                            },
+                                            child: Container(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    116,
+                                                height: 30,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                  color: Colors.blue,
                                                 ),
-                                              )),
+                                                child: Center(
+                                                  child: Text(
+                                                    "Call Patient",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: Colors.white,
+                                                        fontSize: 17),
+                                                  ),
+                                                )),
+                                          ),
                                         ],
                                       )
                                     ],
