@@ -32,7 +32,7 @@ class CheckBeat extends StatefulWidget {
 }
 
 class _CheckBeatState extends State<CheckBeat> {
-  int timeLeft = 10;
+  int timeLeft = 60;
 //60
 
   Timer _timer;
@@ -95,9 +95,9 @@ class _CheckBeatState extends State<CheckBeat> {
         }
       }
 
-      // if (timeLeft == 55) {
-      //   _sendMessage("START");
-      // }
+      if (timeLeft == 55) {
+        _sendMessage("START");
+      }
     });
   }
 
