@@ -1,5 +1,7 @@
 // @dart=2.9
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:easy_gradient_text/easy_gradient_text.dart';
 import 'package:fade/fade.dart';
@@ -24,29 +26,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  Dio dio = new Dio();
   bool issee = false;
-  _getUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var username = prefs.getString("username");
-    print(username);
-    Dio dio = new Dio();
-    dio.get(Config.base_url + "/api/users/${username}").then((value) {
-      setState(() {
-        user = value.data;
-      });
-      print(user);
-    });
-  }
-
-  _getDoctors() async {
-    // Dio dio = new Dio();
-    // dio.get(Config.base_url + "/users/${username}").then((value) {
-    //   setState(() {
-    //     user = value.data;
-    //   });
-    //   print(user);
-    // });
-  }
 
   Map<String, dynamic> user = {};
 
@@ -54,23 +35,25 @@ class _HomeState extends State<Home> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getUserInfo();
     get_type();
   }
 
+  List recordings;
+
   get_type() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    Dio dio = new Dio();
 
     var username = prefs.getString("username");
     dio.get(Config.base_url + "/users/${username}").then((value) {
       setState(() {
         user = value.data;
       });
-      print(user);
+      recordings = user["recordings"];
+      var recording = (recordings[0]);
+      print("Recording: " + recording.toString());
+
       setState(() {
         user_Type = user["user_type"];
-        print(user_Type);
       });
     });
   }
@@ -129,6 +112,7 @@ class _HomeState extends State<Home> {
                                         MaterialPageRoute(
                                             builder: (c) => Profile()));
                                   },
+                                  //profile picture
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 3.0),
                                     child: Container(
@@ -146,277 +130,251 @@ class _HomeState extends State<Home> {
                               ],
                             ),
                             SizedBox(height: 0),
-                            user["recordings"] == null
-                                ? Container()
-                                : ListView.separated(
-                                    separatorBuilder: (ctx, i) {
-                                      return SizedBox(height: 20);
-                                    },
-                                    itemCount: user["recordings"].length == null
-                                        ? 0
-                                        : user["recordings"].length,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return Container(
-                                          width: double.infinity,
-                                          height: 100,
-                                          decoration: BoxDecoration(
-                                            // boxShadow: [
-                                            //   BoxShadow(
-                                            //     color: Colors.black.withOpacity(0.1),
-                                            //     spreadRadius: 0.7,
-                                            //     blurRadius: 20,
-                                            //     offset: Offset(
-                                            //         0, 3), // changes position of shadow
-                                            //   ),
-                                            // ],
-                                            color: Colors.lightBlue
-                                                .withOpacity(0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 8.0, right: 8),
-                                            child: Center(
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Container(
-                                                    width: 70,
+                            //recordings list view
+                            ListView.separated(
+                              separatorBuilder: (ctx, i) {
+                                return SizedBox(height: 20);
+                              },
+                              itemCount: recordings.length,
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Container(
+                                    width: double.infinity,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      color: Colors.lightBlue.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 8.0, right: 8),
+                                      child: Center(
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              width: 70,
 
-                                                    height: 70,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.grey
-                                                          .withOpacity(0.2),
-                                                      image: DecorationImage(
-                                                          image: AssetImage(
-                                                              "assets/wave.png")),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                    // child:
-                                                    //   Image.network(name),
-                                                  ),
-                                                  SizedBox(width: 10),
-                                                  Column(
+                                              height: 70,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey
+                                                    .withOpacity(0.2),
+                                                image: DecorationImage(
+                                                    image: AssetImage(
+                                                        "assets/wave.png")),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              // child:
+                                              //   Image.network(name),
+                                            ),
+                                            SizedBox(width: 10),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(height: 16),
+                                                recordings == null
+                                                    ? Container()
+                                                    : Text(
+                                                        recordings[index]
+                                                            .toString()
+                                                            .substring(
+                                                                106,
+                                                                recordings[index]
+                                                                        .toString()
+                                                                        .length -
+                                                                    2),
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                fontSize: 21,
+                                                                color: Colors
+                                                                    .white),
+                                                      ),
+                                                SizedBox(height: 8),
+                                                Container(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width -
+                                                      119,
+                                                  child: Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.start,
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
                                                             .start,
                                                     children: [
-                                                      SizedBox(height: 16),
-                                                      user["recordings"] == null
-                                                          ? Container()
-                                                          : Text(
-                                                              user["recordings"]
-                                                                      [index]
-                                                                  ["result"],
-                                                              style: GoogleFonts
-                                                                  .poppins(
-                                                                      fontSize:
-                                                                          21,
-                                                                      color: Colors
-                                                                          .white),
-                                                            ),
-                                                      SizedBox(height: 8),
-                                                      Container(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width -
-                                                            119,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              user["recordings"] ==
-                                                                      null
-                                                                  ? Container()
-                                                                  : user["recordings"]
-                                                                          [
-                                                                          index]
-                                                                      ["date"],
-                                                              style: GoogleFonts
-                                                                  .poppins(
-                                                                      fontSize:
-                                                                          13,
-                                                                      color: Colors
-                                                                          .grey),
-                                                            ),
-                                                            GestureDetector(
-                                                              onTap: () {
-                                                                // showSlideDialog(
-                                                                //     barrierDismissible:
-                                                                //         true,
-                                                                //     context: context,
-                                                                //     child:
-                                                                //         ListView.separated(
-                                                                //             itemBuilder:
-                                                                //                 (ctx, i) {
-                                                                //               return Container();
-                                                                //             },
-                                                                //             separatorBuilder:
-                                                                //                 (ctx, i) =>
-                                                                //                     SizedBox(
-                                                                //                         height:
-                                                                //                             10),
-                                                                //             itemCount: 3));
-                                                                showBarModalBottomSheet(
-                                                                    backgroundColor:
-                                                                        Color(
-                                                                            4278656558),
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return Container(
-                                                                        color: Color(
-                                                                            4278656558),
-                                                                        child:
-                                                                            SingleChildScrollView(
-                                                                          child:
-                                                                              Padding(
+                                                      Text(
+                                                        "6/13/21",
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                fontSize: 13,
+                                                                color: Colors
+                                                                    .grey),
+                                                      ),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          showBarModalBottomSheet(
+                                                              backgroundColor:
+                                                                  Color(
+                                                                      4278656558),
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return Container(
+                                                                  color: Color(
+                                                                      4278656558),
+                                                                  child:
+                                                                      SingleChildScrollView(
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              15.0,
+                                                                          right:
+                                                                              15),
+                                                                      child:
+                                                                          Column(
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          SizedBox(
+                                                                            height:
+                                                                                20,
+                                                                          ),
+                                                                          Text(
+                                                                            "Share it with your doctor",
+                                                                            style: GoogleFonts.poppins(
+                                                                                fontSize: 23,
+                                                                                color: Colors.blue,
+                                                                                fontWeight: FontWeight.w500),
+                                                                          ),
+                                                                          SizedBox(
+                                                                            height:
+                                                                                20,
+                                                                          ),
+                                                                          Padding(
                                                                             padding:
-                                                                                const EdgeInsets.only(left: 15.0, right: 15),
+                                                                                const EdgeInsets.only(
+                                                                              bottom: 22.0,
+                                                                            ),
+                                                                            //Doctors
                                                                             child:
-                                                                                Column(
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              children: [
-                                                                                SizedBox(
-                                                                                  height: 20,
-                                                                                ),
-                                                                                Text(
-                                                                                  "Share it with your doctor",
-                                                                                  style: GoogleFonts.poppins(fontSize: 23, color: Colors.blue, fontWeight: FontWeight.w500),
-                                                                                ),
-                                                                                SizedBox(
-                                                                                  height: 20,
-                                                                                ),
-                                                                                Padding(
-                                                                                  padding: const EdgeInsets.only(
-                                                                                    bottom: 22.0,
-                                                                                  ),
-                                                                                  child: ListView.separated(
-                                                                                    physics: NeverScrollableScrollPhysics(),
-                                                                                    separatorBuilder: (ctx, i) {
-                                                                                      return SizedBox(height: 20);
-                                                                                    },
-                                                                                    itemCount: 9,
-                                                                                    shrinkWrap: true,
-                                                                                    itemBuilder: (BuildContext context, int i) {
-                                                                                      return Container(
-                                                                                          width: double.infinity,
-                                                                                          height: 100,
-                                                                                          decoration: BoxDecoration(
-                                                                                            // boxShadow: [
-                                                                                            //   BoxShadow(
-                                                                                            //     color: Colors.black.withOpacity(0.1),
-                                                                                            //     spreadRadius: 0.3,
-                                                                                            //     blurRadius: 10,
-                                                                                            //     offset: Offset(0, 3), // changes position of shadow
-                                                                                            //   ),
-                                                                                            // ],
-                                                                                            borderRadius: BorderRadius.circular(15),
-                                                                                            color: Colors.lightBlue.withOpacity(0.2),
-                                                                                          ),
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                                                                                            child: Center(
-                                                                                              child: Row(
-                                                                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                                children: [
-                                                                                                  Container(
-                                                                                                    width: 80,
+                                                                                ListView.separated(
+                                                                              physics: NeverScrollableScrollPhysics(),
+                                                                              separatorBuilder: (ctx, i) {
+                                                                                return SizedBox(height: 20);
+                                                                              },
+                                                                              itemCount: 1,
+                                                                              shrinkWrap: true,
+                                                                              itemBuilder: (BuildContext context, int i) {
+                                                                                return Container(
+                                                                                    width: double.infinity,
+                                                                                    height: 100,
+                                                                                    decoration: BoxDecoration(
+                                                                                      // boxShadow: [
+                                                                                      //   BoxShadow(
+                                                                                      //     color: Colors.black.withOpacity(0.1),
+                                                                                      //     spreadRadius: 0.3,
+                                                                                      //     blurRadius: 10,
+                                                                                      //     offset: Offset(0, 3), // changes position of shadow
+                                                                                      //   ),
+                                                                                      // ],
+                                                                                      borderRadius: BorderRadius.circular(15),
+                                                                                      color: Colors.lightBlue.withOpacity(0.2),
+                                                                                    ),
+                                                                                    child: Padding(
+                                                                                      padding: const EdgeInsets.only(left: 8.0, right: 8),
+                                                                                      child: Center(
+                                                                                        child: Row(
+                                                                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                          children: [
+                                                                                            Container(
+                                                                                              width: 80,
 
-                                                                                                    height: 80,
-                                                                                                    decoration: BoxDecoration(
-                                                                                                      color: Colors.grey.withOpacity(0.2),
-                                                                                                      image: DecorationImage(fit: BoxFit.cover, image: NetworkImage("https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg")),
-                                                                                                      borderRadius: BorderRadius.circular(10),
-                                                                                                    ),
-                                                                                                    // child:
-                                                                                                    //   Image.network(name),
-                                                                                                  ),
-                                                                                                  SizedBox(width: 10),
-                                                                                                  Column(
-                                                                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                                    children: [
-                                                                                                      SizedBox(height: 16),
-                                                                                                      Text(
-                                                                                                        "Dr. Ann Marie",
-                                                                                                        style: GoogleFonts.poppins(fontSize: 21, color: Colors.white),
-                                                                                                      ),
-                                                                                                      SizedBox(height: 5),
-                                                                                                      GestureDetector(
-                                                                                                        onTap: () async {
-                                                                                                          Navigator.pop(context);
-//                                                                                                          
-                                                                                                          showDialog(
-                                                                                                              context: context,
-                                                                                                              builder: (context) {
-                                                                                                                Future.delayed(Duration(seconds: 3), () {
-                                                                                                                  Navigator.of(context).pop(true);
-                                                                                                                });
-                                                                                                                return Dialog(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)), backgroundColor: Colors.grey[900], child: Container(width: 200, height: 130, child: Lottie.asset("assets/tick.json", repeat: false)));
-                                                                                                              });
-                                                                                                        },
-                                                                                                        child: Container(
-                                                                                                            width: MediaQuery.of(context).size.width - 136,
-                                                                                                            height: 30,
-                                                                                                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), gradient: LinearGradient(colors: [Colors.blue, Colors.lightBlueAccent])),
-                                                                                                            child: Center(
-                                                                                                              child: Text(
-                                                                                                                "Send",
-                                                                                                                style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 17),
-                                                                                                              ),
-                                                                                                            )),
-                                                                                                      ),
-                                                                                                    ],
-                                                                                                  )
-                                                                                                ],
+                                                                                              height: 80,
+                                                                                              decoration: BoxDecoration(
+                                                                                                color: Colors.grey.withOpacity(0.2),
+                                                                                                image: DecorationImage(fit: BoxFit.cover, image: NetworkImage("https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg")),
+                                                                                                borderRadius: BorderRadius.circular(10),
                                                                                               ),
+                                                                                              // child:
+                                                                                              //   Image.network(name),
                                                                                             ),
-                                                                                          ));
-                                                                                    },
-                                                                                  ),
-                                                                                ),
-                                                                              ],
+                                                                                            SizedBox(width: 10),
+                                                                                            Column(
+                                                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                              children: [
+                                                                                                SizedBox(height: 16),
+                                                                                                Text(
+                                                                                                  "Dr. Ann Marie",
+                                                                                                  style: GoogleFonts.poppins(fontSize: 21, color: Colors.white),
+                                                                                                ),
+                                                                                                SizedBox(height: 5),
+                                                                                                GestureDetector(
+                                                                                                  onTap: () async {
+                                                                                                    Navigator.pop(context);
+//
+                                                                                                    showDialog(
+                                                                                                        context: context,
+                                                                                                        builder: (context) {
+                                                                                                          Future.delayed(Duration(seconds: 3), () {
+                                                                                                            Navigator.of(context).pop(true);
+                                                                                                          });
+                                                                                                          return Dialog(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)), backgroundColor: Colors.grey[900], child: Container(width: 200, height: 130, child: Lottie.asset("assets/tick.json", repeat: false)));
+                                                                                                        });
+                                                                                                  },
+                                                                                                  child: Container(
+                                                                                                      width: MediaQuery.of(context).size.width - 136,
+                                                                                                      height: 30,
+                                                                                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), gradient: LinearGradient(colors: [Colors.blue, Colors.lightBlueAccent])),
+                                                                                                      child: Center(
+                                                                                                        child: Text(
+                                                                                                          "Send",
+                                                                                                          style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 17),
+                                                                                                        ),
+                                                                                                      )),
+                                                                                                ),
+                                                                                              ],
+                                                                                            )
+                                                                                          ],
+                                                                                        ),
+                                                                                      ),
+                                                                                    ));
+                                                                              },
                                                                             ),
                                                                           ),
-                                                                        ),
-                                                                      );
-                                                                    });
-                                                              },
-                                                              child: Icon(
-                                                                Icons.share,
-                                                                color: Colors
-                                                                    .white,
-                                                                size: 20,
-                                                              ),
-                                                            )
-                                                          ],
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              });
+                                                        },
+                                                        child: Icon(
+                                                          Icons.share,
+                                                          color: Colors.white,
+                                                          size: 20,
                                                         ),
-                                                      ),
+                                                      )
                                                     ],
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ));
-                                    },
-                                  ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ));
+                              },
+                            ),
                             SizedBox(
                               height: 100,
                             )
