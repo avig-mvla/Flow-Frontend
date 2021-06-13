@@ -235,12 +235,6 @@ class _CheckBeatState extends State<CheckBeat> {
                           color: Colors.grey.withOpacity(0.4))),
                 ),
               ),
-              Container(
-                height: 100,
-                child: SingleChildScrollView(
-                  child: Text(byteData.toString()),
-                ),
-              ),
               SizedBox(height: 60),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
