@@ -16,6 +16,8 @@ import 'package:masseyhacks/profile.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'config.dart';
+
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
@@ -28,7 +30,7 @@ class _HomeState extends State<Home> {
     var username = prefs.getString("username");
     print(username);
     Dio dio = new Dio();
-    dio.get("https://flow-live.tech/api/users/${username}").then((value) {
+    dio.get(Config.base_url + "/api/users/${username}").then((value) {
       setState(() {
         user = value.data;
       });
@@ -38,7 +40,7 @@ class _HomeState extends State<Home> {
 
   _getDoctors() async {
     // Dio dio = new Dio();
-    // dio.get("https://flow-live.tech/api/users/${username}").then((value) {
+    // dio.get(Config.base_url + "/users/${username}").then((value) {
     //   setState(() {
     //     user = value.data;
     //   });
@@ -61,7 +63,7 @@ class _HomeState extends State<Home> {
     Dio dio = new Dio();
 
     var username = prefs.getString("username");
-    dio.get("https://flow-live.tech/api/users/${username}").then((value) {
+    dio.get(Config.base_url + "/users/${username}").then((value) {
       setState(() {
         user = value.data;
       });
@@ -110,12 +112,14 @@ class _HomeState extends State<Home> {
                                             fontSize: 23.5,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w500)),
-                                    Text("Dhanush Vardhan ",
-                                        style: GoogleFonts.poppins(
-                                            fontSize: 23.5,
-                                            height: 1.5,
-                                            color: Colors.blue,
-                                            fontWeight: FontWeight.w500)),
+                                    user["name"] == null
+                                        ? Container()
+                                        : Text(user["name"],
+                                            style: GoogleFonts.poppins(
+                                                fontSize: 23.5,
+                                                height: 1.5,
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.w500)),
                                   ],
                                 ),
                                 GestureDetector(
@@ -136,7 +140,7 @@ class _HomeState extends State<Home> {
                                             image: DecorationImage(
                                                 fit: BoxFit.cover,
                                                 image: NetworkImage(
-                                                    "https://t4.ftcdn.net/jpg/02/14/74/61/360_F_214746128_31JkeaP6rU0NzzzdFC4khGkmqc8noe6h.jpg")))),
+                                                    "https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg")))),
                                   ),
                                 )
                               ],
@@ -148,7 +152,9 @@ class _HomeState extends State<Home> {
                                     separatorBuilder: (ctx, i) {
                                       return SizedBox(height: 20);
                                     },
-                                    itemCount: user["recordings"].length,
+                                    itemCount: user["recordings"].length == null
+                                        ? 0
+                                        : user["recordings"].length,
                                     physics: NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
                                     itemBuilder:
@@ -205,15 +211,19 @@ class _HomeState extends State<Home> {
                                                             .start,
                                                     children: [
                                                       SizedBox(height: 16),
-                                                      Text(
-                                                        user["recordings"]
-                                                            [index]["result"],
-                                                        style:
-                                                            GoogleFonts.poppins(
-                                                                fontSize: 21,
-                                                                color: Colors
-                                                                    .white),
-                                                      ),
+                                                      user["recordings"] == null
+                                                          ? Container()
+                                                          : Text(
+                                                              user["recordings"]
+                                                                      [index]
+                                                                  ["result"],
+                                                              style: GoogleFonts
+                                                                  .poppins(
+                                                                      fontSize:
+                                                                          21,
+                                                                      color: Colors
+                                                                          .white),
+                                                            ),
                                                       SizedBox(height: 8),
                                                       Container(
                                                         width: MediaQuery.of(
@@ -230,9 +240,13 @@ class _HomeState extends State<Home> {
                                                                   .start,
                                                           children: [
                                                             Text(
-                                                              user["recordings"]
-                                                                      [index]
-                                                                  ["date"],
+                                                              user["recordings"] ==
+                                                                      null
+                                                                  ? Container()
+                                                                  : user["recordings"]
+                                                                          [
+                                                                          index]
+                                                                      ["date"],
                                                               style: GoogleFonts
                                                                   .poppins(
                                                                       fontSize:
@@ -301,7 +315,6 @@ class _HomeState extends State<Home> {
                                                                                     itemCount: 9,
                                                                                     shrinkWrap: true,
                                                                                     itemBuilder: (BuildContext context, int i) {
-                                                      
                                                                                       return Container(
                                                                                           width: double.infinity,
                                                                                           height: 100,
@@ -329,7 +342,7 @@ class _HomeState extends State<Home> {
                                                                                                     height: 80,
                                                                                                     decoration: BoxDecoration(
                                                                                                       color: Colors.grey.withOpacity(0.2),
-                                                                                                      image: DecorationImage(fit: BoxFit.cover, image: NetworkImage("https://cdn8.dissolve.com/p/D9_39_166/D9_39_166_1200.jpg")),
+                                                                                                      image: DecorationImage(fit: BoxFit.cover, image: NetworkImage("https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg")),
                                                                                                       borderRadius: BorderRadius.circular(10),
                                                                                                     ),
                                                                                                     // child:
@@ -349,10 +362,7 @@ class _HomeState extends State<Home> {
                                                                                                       GestureDetector(
                                                                                                         onTap: () async {
                                                                                                           Navigator.pop(context);
-//                                                                                                           var dio=Dio();
-//                                                                                                           var send_messgae={"url":user["recordings"][index]["url"]}
-//  await dio.post("https://flow-live.tech/user/send_recording",
-//               data: FormData.fromMap(send_messgae));
+//                                                                                                          
                                                                                                           showDialog(
                                                                                                               context: context,
                                                                                                               builder: (context) {
@@ -481,7 +491,7 @@ class _HomeState extends State<Home> {
                                       borderRadius: BorderRadius.circular(15),
                                       image: DecorationImage(
                                           image: NetworkImage(
-                                              "https://t4.ftcdn.net/jpg/02/14/74/61/360_F_214746128_31JkeaP6rU0NzzzdFC4khGkmqc8noe6h.jpg"),
+                                              "https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg"),
                                           fit: BoxFit.cover)),
                                 )),
                             Padding(

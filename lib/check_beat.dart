@@ -20,6 +20,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:slide_popup_dialog/slide_popup_dialog.dart';
 
+import 'config.dart';
+
 enum RecordState { stopped, recording }
 
 class CheckBeat extends StatefulWidget {
@@ -32,7 +34,7 @@ class CheckBeat extends StatefulWidget {
 }
 
 class _CheckBeatState extends State<CheckBeat> {
-  int timeLeft = 60;
+  int timeLeft = 10;
 //60
 
   Timer _timer;
@@ -44,43 +46,53 @@ class _CheckBeatState extends State<CheckBeat> {
     );
     Timer.periodic(Duration(seconds: 1), (timer) async {
       if (timeLeft == 0) {
-        if (mounted) {
-          // Dio dio = new Dio();
-          // var bytes_data = {"byes": byteData, "username": username};
-          // await dio.post("https://flow-live.tech/api/send_recording",
-          //     data: FormData.fromMap(bytes_data));
+        Dio dio = new Dio();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var username = prefs.get("username");
+        print(byteData);
+        if (byteData.length == 0) {
+          for (int i = 0; i < 5; i++) {
+            byteData.add(i + 1);
+          }
+        }
+        await dio
+            .post(Config.base_url + "/send_recording",
+                data: FormData.fromMap(
+                    {"recording": "[1, 2, 3, 4, 5]", "username": username}))
+            .then((value) => print("Result: " + value.toString()));
 
+        if (mounted) {
           _sendMessage("STOP");
-          showDialog(
-              context: context,
-              builder: (ctx) {
-                return Dialog(
-                  backgroundColor: Colors.grey[900],
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Container(
-                    width: 350,
-                    height: 300,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[900],
-                        borderRadius: BorderRadius.circular(15)),
-                    child: Column(
-                      children: [
-                        //  user["result"]==null?Container():
-                        LottieBuilder.network(
-                          "https://assets8.lottiefiles.com/packages/lf20_qt1NKX.json",
-                        ),
-                        //  user["result"]==null?Container():
-                        Text("Normal Heartbeat",
-                            style: GoogleFonts.poppins(
-                              fontSize: 23,
-                              color: Color(0xFFFF4848),
-                            ))
-                      ],
-                    ),
-                  ),
-                );
-              });
+          // showDialog(
+          //     context: context,
+          //     builder: (ctx) {
+          //       return Dialog(
+          //         backgroundColor: Colors.grey[900],
+          //         shape: RoundedRectangleBorder(
+          //             borderRadius: BorderRadius.circular(15)),
+          //         child: Container(
+          //           width: 350,
+          //           height: 300,
+          //           decoration: BoxDecoration(
+          //               color: Colors.grey[900],
+          //               borderRadius: BorderRadius.circular(15)),
+          //           child: Column(
+          //             children: [
+          //               //  user["result"]==null?Container():
+          //               LottieBuilder.network(
+          //                 "https://assets8.lottiefiles.com/packages/lf20_qt1NKX.json",
+          //               ),
+          //               //  user["result"]==null?Container():
+          //               Text("Normal Heartbeat",
+          //                   style: GoogleFonts.poppins(
+          //                     fontSize: 23,
+          //                     color: Color(0xFFFF4848),
+          //                   ))
+          //             ],
+          //           ),
+          //         ),
+          //       );
+          //     });
 
           setState(() {
             timer.cancel();
@@ -94,10 +106,6 @@ class _CheckBeatState extends State<CheckBeat> {
           });
         }
       }
-
-      if (timeLeft == 55) {
-        _sendMessage("START");
-      }
     });
   }
 
@@ -110,7 +118,7 @@ class _CheckBeatState extends State<CheckBeat> {
 
         if (text == "START") {
           _recordState = RecordState.recording;
-        } else if (text == "STOP") {
+        } else {
           _recordState = RecordState.stopped;
         }
         setState(() {});

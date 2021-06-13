@@ -20,6 +20,9 @@ class _BluetoothHomeState extends State<BluetoothHome>
   @override
   void initState() {
     super.initState();
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return CheckBeat(server: BluetoothDevice(address: "dsglkj"));
+    }));
     WidgetsBinding.instance.addObserver(this);
     _getBTState();
     _stateChangeListener();
@@ -77,54 +80,62 @@ class _BluetoothHomeState extends State<BluetoothHome>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("ESP32 Voice Recorder"),
-      ),
-      body: Container(
-        child: Column(
-          children: <Widget>[
-            SwitchListTile(
-              title: Text('Enable Bluetooth'),
-              value: _bluetoothState.isEnabled,
-              onChanged: (bool value) {
-                future() async {
-                  if (value) {
-                    await FlutterBluetoothSerial.instance.requestEnable();
-                  } else {
-                    await FlutterBluetoothSerial.instance.requestDisable();
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Color(4278656558),
+        body: Container(
+          child: Column(
+            children: <Widget>[
+              SwitchListTile(
+                title: Text('Enable Bluetooth',
+                    style: TextStyle(color: Colors.white)),
+                value: _bluetoothState.isEnabled,
+                onChanged: (bool value) {
+                  future() async {
+                    if (value) {
+                      await FlutterBluetoothSerial.instance.requestEnable();
+                    } else {
+                      await FlutterBluetoothSerial.instance.requestDisable();
+                    }
+                    future().then((_) {
+                      setState(() {});
+                    });
                   }
-                  future().then((_) {
-                    setState(() {});
-                  });
-                }
-              },
-            ),
-            ListTile(
-              title: Text("Bluetooth STATUS"),
-              subtitle: Text(_bluetoothState.toString()),
-              trailing: RaisedButton(
-                child: Text("Settings"),
-                onPressed: () {
-                  FlutterBluetoothSerial.instance.openSettings();
                 },
               ),
-            ),
-            Expanded(
-              child: ListView(
-                children: devices
-                    .map((_device) => BluetoothDeviceListEntry(
-                          device: _device,
-                          enabled: true,
-                          onTap: () {
-                            print("Item");
-                            _startCameraConnect(context, _device);
-                          },
-                        ))
-                    .toList(),
+              
+              ListTile(
+                title: Text("Bluetooth STATUS",
+                    style: TextStyle(color: Colors.white)),
+                subtitle: Text(
+                  _bluetoothState.toString(),
+                  style: TextStyle(color: Colors.white),
+                ),
+                trailing: RaisedButton(
+                  color: Colors.blue,
+                  child:
+                      Text("Settings", style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    FlutterBluetoothSerial.instance.openSettings();
+                  },
+                ),
               ),
-            )
-          ],
+              Expanded(
+                child: ListView(
+                  children: devices
+                      .map((_device) => BluetoothDeviceListEntry(
+                            device: _device,
+                            enabled: true,
+                            onTap: () {
+                              print("Item");
+                              _startCameraConnect(context, _device);
+                            },
+                          ))
+                      .toList(),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

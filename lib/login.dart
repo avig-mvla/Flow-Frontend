@@ -9,6 +9,8 @@ import 'package:masseyhacks/home.dart';
 import 'package:masseyhacks/signinup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'config.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -184,7 +186,7 @@ class _LoginState extends State<Login> {
                                 Dio dio = new Dio();
                                 var password = {"password": _password.text};
                                 var res = await dio.post(
-                                    "https://flow-live.tech/api/login/${_username.text}",
+                                    Config.base_url + "/login/${_username.text}",
                                     data: FormData.fromMap(password));
                                 if (res.data == "True") {
                                   SharedPreferences prefs =

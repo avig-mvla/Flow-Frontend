@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'config.dart';
+
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
 
@@ -19,7 +21,7 @@ class _ProfileState extends State<Profile> {
     var username = prefs.getString("username");
     print(username);
     Dio dio = new Dio();
-    dio.get("https://flow-live.tech/api/users/${username}").then((value) {
+    dio.get(Config.base_url + "/users/${username}").then((value) {
       setState(() {
         user = value.data;
       });
@@ -62,7 +64,7 @@ class _ProfileState extends State<Profile> {
                           decoration: BoxDecoration(
                               image: DecorationImage(
                                   image: NetworkImage(
-                                      "https://t4.ftcdn.net/jpg/02/14/74/61/360_F_214746128_31JkeaP6rU0NzzzdFC4khGkmqc8noe6h.jpg"),
+                                      "https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg"),
                                   fit: BoxFit.cover),
                               borderRadius: BorderRadius.circular(
                                 (15),
@@ -99,18 +101,23 @@ class _ProfileState extends State<Profile> {
               SizedBox(
                 height: 20,
               ),
-              Text(user["name"],
-                  // "Dhanush",
-                  style: GoogleFonts.poppins(
-                      fontSize: 27,
-                      height: 1.5,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w500)),
+              user["name"] == null
+                  ? Container()
+                  : Text(user["name"],
+                      // "Dhanush",
+                      style: GoogleFonts.poppins(
+                          fontSize: 27,
+                          height: 1.5,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w500)),
               SizedBox(height: 0),
-              Text(
-                "${user["age"]} years",
-                style: GoogleFonts.poppins(fontSize: 17, color: Colors.grey),
-              ),
+              user["age"] == null
+                  ? Container()
+                  : Text(
+                      "${user["age"]} years",
+                      style:
+                          GoogleFonts.poppins(fontSize: 17, color: Colors.grey),
+                    ),
               SizedBox(height: 30),
               Text(
                 "Your Doctors",
@@ -124,88 +131,100 @@ class _ProfileState extends State<Profile> {
                 padding: const EdgeInsets.only(
                   bottom: 22.0,
                 ),
-                child: ListView.separated(
-                  separatorBuilder: (ctx, i) {
-                    return SizedBox(height: 20);
-                  },
-                  itemCount: user["doctors"].length,
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Container(
-                        width: double.infinity,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: Colors.lightBlue.withOpacity(0.2),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0, right: 8),
-                          child: Center(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 80,
+                child: user["doctors"] == null
+                    ? Container()
+                    : ListView.separated(
+                        separatorBuilder: (ctx, i) {
+                          return SizedBox(height: 20);
+                        },
+                        itemCount: user["doctors"].length == null
+                            ? 0
+                            : user["doctors"].length,
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                              width: double.infinity,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.lightBlue.withOpacity(0.2),
+                              ),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8.0, right: 8),
+                                child: Center(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: 80,
 
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: NetworkImage(
-                                            "https://cdn8.dissolve.com/p/D9_39_166/D9_39_166_1200.jpg")),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  // child:
-                                  //   Image.network(name),
-                                ),
-                                SizedBox(width: 10),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 16),
-                                    Text(
-                                      user["doctors"][index]["name"],
-                                      style: GoogleFonts.poppins(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 21,
-                                          color: Colors.blue),
-                                    ),
-                                    SizedBox(height: 0),
-                                    Container(
-                                      width: MediaQuery.of(context).size.width -
-                                          126,
-                                      child: Row(
+                                        height: 80,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.withOpacity(0.2),
+                                          image: DecorationImage(
+                                              fit: BoxFit.cover,
+                                              image: NetworkImage(
+                                                  "https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg")),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        // child:
+                                        //   Image.network(name),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Column(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                            MainAxisAlignment.start,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
+                                          SizedBox(height: 16),
                                           Text(
-                                            "${user["doctors"][index]["age"]} years old",
+                                            user["doctors"][index]["name"],
                                             style: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                color: Colors.grey),
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 21,
+                                                color: Colors.blue),
                                           ),
-                                          // Text(
-                                          //   "Indian",
-                                          //   style: GoogleFonts.poppins(
-                                          //       fontSize: 13,
-                                          //       color: Colors.grey),
-                                          // ),
+                                          SizedBox(height: 0),
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width -
+                                                126,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "${user["doctors"][index]["age"]} years old",
+                                                  style: GoogleFonts.poppins(
+                                                      fontSize: 13,
+                                                      color: Colors.grey),
+                                                ),
+                                                // Text(
+                                                //   "Indian",
+                                                //   style: GoogleFonts.poppins(
+                                                //       fontSize: 13,
+                                                //       color: Colors.grey),
+                                                // ),
+                                              ],
+                                            ),
+                                          ),
                                         ],
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                        ));
-                  },
-                ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ));
+                        },
+                      ),
               )
             ],
           ),

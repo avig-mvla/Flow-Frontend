@@ -5,6 +5,8 @@ import 'package:easy_gradient_text/easy_gradient_text.dart';
 import 'package:masseyhacks/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'config.dart';
+
 class Signup extends StatefulWidget {
   @override
   _SignupState createState() => _SignupState();
@@ -283,11 +285,10 @@ class _SignupState extends State<Signup> {
                                 "password": _password.text,
                                 "user_type": _userType.text,
                                 "doctors": [],
-
                                 "recordings": [],
                               };
                               var res = await dio.post(
-                                  "https://flow-live.tech/api/register_user",
+                                  Config.base_url + "/register_user",
                                   data: FormData.fromMap(data));
                               if (res.data == "Success") {
                                        SharedPreferences prefs =

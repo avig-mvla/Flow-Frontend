@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
@@ -9,8 +10,11 @@ import 'package:masseyhacks/check_beat.dart';
 import 'dart:ui';
 import 'package:masseyhacks/profile.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'package:syncfusion_flutter_charts/src/sparkline/series/spark_area_base.dart';
+
+import 'config.dart';
 
 class DoctorHome extends StatefulWidget {
   @override
@@ -18,6 +22,7 @@ class DoctorHome extends StatefulWidget {
 }
 
 class _DoctorHomeState extends State<DoctorHome> {
+  var user;
   final serverText = TextEditingController();
   final roomText = TextEditingController(text: "plugintestroom");
   final subjectText = TextEditingController(text: "My Plugin Test Meeting");
@@ -29,9 +34,23 @@ class _DoctorHomeState extends State<DoctorHome> {
   bool? isAudioMuted = true;
   bool? isVideoMuted = true;
 
+  _getUserInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var username = prefs.getString("username");
+    print(username);
+    Dio dio = new Dio();
+    dio.get(Config.base_url + "/users/${username}").then((value) {
+      setState(() {
+        user = value.data;
+      });
+      print(user);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _getUserInfo();
     JitsiMeet.addListener(JitsiMeetingListener(
         onConferenceWillJoin: _onConferenceWillJoin,
         onConferenceJoined: _onConferenceJoined,
@@ -176,12 +195,14 @@ class _DoctorHomeState extends State<DoctorHome> {
                                     fontSize: 23.5,
                                     color: Colors.white,
                                   )),
-                              Text("Dhanush Vardhan ",
-                                  style: GoogleFonts.poppins(
-                                      fontSize: 23.5,
-                                      height: 1.5,
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.w500)),
+                              user["name"] == null
+                                  ? Container()
+                                  : Text(user["name"],
+                                      style: GoogleFonts.poppins(
+                                          fontSize: 23.5,
+                                          height: 1.5,
+                                          color: Colors.blue,
+                                          fontWeight: FontWeight.w500)),
                             ],
                           ),
                           GestureDetector(
