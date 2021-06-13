@@ -120,7 +120,7 @@ class _ProfileState extends State<Profile> {
                     ),
               SizedBox(height: 30),
               Text(
-                "Your Doctors",
+                user["user_type"] == "Patient" ? "Your Doctors": "Your Patients",
                 style: GoogleFonts.poppins(
                     // height:0,
                     fontSize: 25,
